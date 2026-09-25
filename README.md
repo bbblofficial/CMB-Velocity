@@ -1,86 +1,72 @@
 # VelocityCommandBlocker
 
-A Velocity proxy plugin that blocks commands for members across **all** backend servers
-(works with 1.8.8 - 1.21.x clients/servers behind the proxy).
+> Block dangerous commands for members across **all** backend servers on a Velocity proxy.
+> **Created by Muvixo**
 
-No need to install anything on the backend servers - the proxy handles everything.
+Runs on the Velocity proxy only - **no need to install anything on backend servers**.
 
 ## Features
 
-- ✅ Runs on the Velocity proxy only
-- ✅ Applies to all servers behind the proxy
-- ✅ Customizable `config.yml` with colors (& codes) and messages
-- ✅ Blacklist **or** whitelist mode
-- ✅ Bypass permission for admins/staff
-- ✅ Reload command without restart
-- ✅ Auto-build with GitHub Actions
+- ✅ Velocity-only plugin (applies to every server behind the proxy)
+- ✅ Full security blacklist (op, gamemode, give, ban, lp, stop, plugins, ...)
+- ✅ Optional **whitelist mode**
+- ✅ Namespaced command blocking (`/bukkit:op`, `/minecraft:give`, ...)
+- ✅ Dangerous first-argument blocking (`/lp permission set ...`)
+- ✅ **Tab-complete blocking** for hidden commands
+- ✅ Fully customizable `config.yml` (colors with `&`, prefix, messages)
+- ✅ `/cb creator` and `/cb reload`
+- ✅ Bypass permission for staff
+- ✅ Auto-build with **GitHub Actions**
 
-## Permissions (add with LuckPerms on Velocity)
+## Default Prefix
+
+```
+MineStorm » 
+```
+(Aqua + White - can be changed in `config.yml`)
+
+## Permissions (LuckPerms on Velocity)
 
 | Permission | Description | Default |
 |---|---|---|
-| `commandblocker.bypass` | Skip command blocking | false |
-| `commandblocker.admin`  | Use `/commandblocker reload` | op |
-
-Example:
+| `commandblocker.bypass` | Skip blocking | false |
+| `commandblocker.admin`  | `/cb reload` | op |
 
 ```
-/lp user Notch permission set commandblocker.bypass true
-/lp group admin permission set commandblocker.bypass true
+/lp user <player> permission set commandblocker.bypass true
+/lp group admin   permission set commandblocker.bypass true
 /lp group default permission set commandblocker.bypass false
 ```
 
 ## Commands
 
-- `/commandblocker reload` (aliases: `/cb`, `/vcb`, `/cmdblock`) - reload config
+| Command | Permission | Description |
+|---|---|---|
+| `/cb creator` (aliases `/commandblocker`, `/vcb`, `/cmdblock`) | everyone | Shows plugin author |
+| `/cb reload` | `commandblocker.admin` | Reload `config.yml` |
 
 ## Installation
 
-1. Download the JAR from GitHub Actions (Artifacts tab after a build) or build it yourself.
-2. Drop the JAR into your **Velocity** `plugins/` folder.
+1. Build locally with `mvn clean package` **or** download from GitHub Actions → Artifacts.
+2. Put `VelocityCommandBlocker.jar` in the Velocity `plugins/` folder.
 3. Restart the proxy.
 4. Edit `plugins/velocitycommandblocker/config.yml`.
-5. Run `/cb reload` from the console or in-game.
+5. Reload with `/cb reload`.
 
-## Building
+## Building with GitHub Actions (no local setup)
 
-### Locally
-
-```bash
-mvn clean package
-```
-
-Output: `target/VelocityCommandBlocker.jar`
-
-### With GitHub Actions (no setup)
-
-1. Create a new GitHub repository.
-2. Push this project.
-3. Go to the **Actions** tab -> wait for the workflow.
-4. Download the JAR from the **Artifacts** section of the finished run.
-
-## config.yml example
-
-```yaml
-settings:
-  use-whitelist: false
-  case-insensitive: true
-  log-blocked: true
-
-messages:
-  prefix: "&8[&cCommandBlocker&8] &r"
-  blocked: "&cYou don't have permission to use this command!"
-
-blocked-commands:
-  - op
-  - gamemode
-  - give
-  - tp
-
-allowed-commands:
-  - spawn
-  - hub
-```
+1. Create a new empty repo on GitHub.
+2. Push this project:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin https://github.com/USERNAME/VelocityCommandBlocker.git
+   git push -u origin main
+   ```
+3. Open the **Actions** tab → wait for the green check.
+4. Download the JAR from **Artifacts** on the finished run.
 
 ## License
 

@@ -2,7 +2,7 @@
   "id": "commandblocker",
   "name": "VelocityCommandBlocker",
   "version": "1.0.0",
-  "description": "Block commands for members on the whole proxy",
-  "authors": ["You"],
-  "main": "com.example.commandblocker.CommandBlocker"
+  "description": "Block dangerous commands for members across the whole proxy",
+  "authors": ["Muvixo"],
+  "main": "com.muvixo.commandblocker.CommandBlocker"
 }

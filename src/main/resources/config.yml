@@ -1,74 +1,235 @@
 # ============================================================
-#  VelocityCommandBlocker - Configuration
+#   VelocityCommandBlocker  -  by Muvixo
+# ============================================================
+#   Prefix default: MineStorm  (Aqua + White)
+#   Colors: use &codes  (&a &b &c &e &f &l &r ...)
 # ============================================================
 #
-#  Permission to bypass command blocking:  commandblocker.bypass
-#  Permission to use /commandblocker reload:  commandblocker.admin
+#  PERMISSIONS (add on Velocity with LuckPerms):
+#    commandblocker.bypass  -> skip blocking            (default: false)
+#    commandblocker.admin   -> use /cb reload           (default: op)
 #
-#  With LuckPerms (on Velocity):
+#  With LuckPerms on Velocity:
 #    /lp user <player> permission set commandblocker.bypass true
-#    /lp user <player> permission set commandblocker.admin true
+#    /lp group admin   permission set commandblocker.bypass true
 #    /lp group default permission set commandblocker.bypass false
 #
-#  Color codes: use & followed by a code (e.g. &c &a &l &r)
-#  Supported: &0-9 &a-f &k &l &m &n &o &r  (#rrggbb hex NOT supported)
 # ============================================================
 
 settings:
-  # true  -> ONLY commands in allowed-commands work (whitelist mode)
-  # false -> commands in blocked-commands are blocked (blacklist mode)
+  # Whitelist mode: true  -> ONLY allowed-commands work
+  #                 false -> blocked-commands are blocked
   use-whitelist: false
 
-  # Case-insensitive matching for commands
+  # Case-insensitive matching
   case-insensitive: true
 
-  # Send a log message to console when someone is blocked
+  # Log blocked attempts to console
   log-blocked: true
 
-messages:
-  # Prefix shown before every message
-  prefix: "&8[&cCommandBlocker&8] &r"
+  # Block the tab-complete suggestions for blocked commands too (very important for security!)
+  block-tab-complete: true
 
-  # Message sent to player when their command is blocked
+  # Also block namespaced variants  e.g.  bukkit:op  minecraft:give
+  block-namespaced: true
+
+  # Also block dangerous sub-commands based on first argument
+  # e.g. /lp user X permission set *  ->  blocked by arg "permission"
+  block-dangerous-args: true
+
+# ============================================================
+#  MESSAGES  (& = section sign, works everywhere)
+# ============================================================
+messages:
+  # Prefix  ->  MineStorm  [ Aqua + White ]
+  prefix: "&b&lMineStorm &7» &r"
+
+  # Sent to a player when their command is blocked
   blocked: "&cYou don't have permission to use this command!"
 
-  # /commandblocker reload messages
+  # Sent when a player tries to run a blocked command via tab/namespace
+  blocked-namespaced: "&cThat command is not allowed here!"
+
+  # Sent when a dangerous argument is blocked
+  blocked-args: "&cThat sub-command is restricted!"
+
+  # /cb creator
+  creator: "&bCreated by &f&lMuvixo"
+
+  # /cb reload
   reload-success: "&aConfiguration reloaded successfully!"
   reload-failed: "&cFailed to reload configuration. Check console."
   no-permission: "&cYou don't have permission to use this command."
+  usage: "&bUsage: &f/commandblocker <reload|creator>"
 
-  # Usage message for the plugin command
-  usage: "&eUsage: &f/commandblocker reload"
-
-# Commands blocked for members (do NOT include the leading '/')
-# Only used when use-whitelist: false
+# ============================================================
+#  BLOCKED COMMANDS (used when use-whitelist: false)
+#  Do NOT include the leading '/'
+#  This is a FULL security list - feel free to trim it.
+# ============================================================
 blocked-commands:
+  # --- Operator / permissions ---
   - op
   - deop
+  - permission
+  - permissions
+  - perm
+  - perms
+  - lp
+  - luckperms
+  - pex
+  - groupmanager
+  - manuadd
+  - manudel
+  - manuaddp
+  - manudelp
+  - gman
+  - vault
+
+  # --- Bans / mutes / kicks ---
   - ban
   - unban
   - ban-ip
-  - pardon
+  - unban-ip
+  - banip
+  - tempban
+  - tempbanip
+  - ipban
   - kick
-  - gamemode
-  - gm
-  - give
-  - tp
-  - teleport
+  - kickall
+  - mute
+  - unmute
+  - tempmute
+  - warn
+  - unwarn
+  - jail
+  - unjail
+
+  # --- Server control ---
   - stop
   - restart
+  - shutdown
+  - reload
+  - rl
+  - save-all
+  - save-off
+  - save-on
+  - whitelist
+  - wl
   - plugins
   - pl
+  - bukkit
   - version
   - ver
-  - whitelist
-  - save-all
-  - reload
-  - bukkit:op
-  - minecraft:op
+  - about
+  - icanhasbukkit
+  - ?
+  - help
+  - bukkit:help
+  - spigot:help
 
-# Commands allowed when use-whitelist: true
-# Only used when use-whitelist: true
+  # --- World / terrain ---
+  - world
+  - mv
+  - multiverse
+  - mvcreate
+  - mvdelete
+  - mvtp
+  - setworldspawn
+  - setspawn
+  - time
+  - weather
+  - gamerule
+  - difficulty
+  - killall
+  - buther
+  - remove
+  - lag
+  - tps
+  - timings
+
+  # --- Communication (optional - remove if you want them) ---
+  - me
+  - say
+  - broadcast
+  - bc
+  - announce
+
+  # --- Proxy-specific (Velocity/Bungee) ---
+  - server
+  - send
+  - gsend
+  - glist
+  - glistall
+  - sendall
+  - alert
+  - alertraw
+  - bungee
+  - velocity
+  - proxy
+  - plist
+  - find
+  - ip
+  - whois
+
+  # --- Essentials / Cosmetics ---
+  - hat
+  - armor
+  - rename
+  - lore
+  - enchant
+  - exp
+  - xp
+  - sudo
+  - sudoall
+  - force
+  - runas
+  - execute
+  - function
+  - trigger
+  - scoreboard
+  - tag
+  - team
+
+  # --- Plugin managers ---
+  - pman
+  - plugman
+  - pluginmanager
+  - pm
+  - py
+  - python
+
+  # --- Dangerous namespaced fallbacks (belt + suspenders) ---
+  - minecraft:op
+  - minecraft:deop
+  - minecraft:gamemode
+  - minecraft:give
+  - minecraft:tp
+  - minecraft:teleport
+  - minecraft:kill
+  - minecraft:ban
+  - minecraft:stop
+  - minecraft:reload
+  - bukkit:op
+  - bukkit:deop
+  - bukkit:gamemode
+  - bukkit:give
+  - bukkit:tp
+  - bukkit:reload
+  - bukkit:stop
+  - bukkit:plugins
+  - bukkit:version
+  - spigot:reload
+  - spigot:version
+  - paper:reload
+  - paper:version
+  - essentials:gamemode
+  - essentials:give
+  - essentials:tp
+
+# ============================================================
+#  ALLOWED COMMANDS (only used when use-whitelist: true)
+# ============================================================
 allowed-commands:
   - spawn
   - hub
@@ -82,3 +243,32 @@ allowed-commands:
   - list
   - ping
   - server
+  - kit
+  - kits
+
+# ============================================================
+#  DANGEROUS FIRST-ARGUMENTS
+#  When block-dangerous-args is true, if the FIRST argument of
+#  a command matches one of these, it's blocked too.
+#  Example: /lp user X permission set  ->  "user" not in list,
+#  but /lp permission set ...  ->  "permission" triggers block.
+# ============================================================
+dangerous-args:
+  - permission
+  - permissions
+  - perm
+  - perms
+  - set
+  - unset
+  - add
+  - remove
+  - op
+  - deop
+  - ban
+  - unban
+  - kick
+  - gamemode
+  - give
+  - stop
+  - restart
+  - reload

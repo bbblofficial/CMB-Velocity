@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example</groupId>
+    <groupId>com.muvixo</groupId>
     <artifactId>VelocityCommandBlocker</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>VelocityCommandBlocker</name>
-    <description>Block commands for members on Velocity proxy</description>
+    <description>Block commands for members on Velocity proxy - by Muvixo</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -54,15 +54,13 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
+                        <goals><goal>shade</goal></goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
                                     <pattern>org.yaml.snakeyaml</pattern>
-                                    <shadedPattern>com.example.commandblocker.libs.snakeyaml</shadedPattern>
+                                    <shadedPattern>com.muvixo.commandblocker.libs.snakeyaml</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
