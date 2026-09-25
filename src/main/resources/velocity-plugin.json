@@ -1,0 +1,8 @@
+{
+  "id": "commandblocker",
+  "name": "VelocityCommandBlocker",
+  "version": "1.0.0",
+  "description": "Block commands for members on the whole proxy",
+  "authors": ["You"],
+  "main": "com.example.commandblocker.CommandBlocker"
+}

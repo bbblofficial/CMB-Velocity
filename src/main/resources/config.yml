@@ -1,0 +1,84 @@
+# ============================================================
+#  VelocityCommandBlocker - Configuration
+# ============================================================
+#
+#  Permission to bypass command blocking:  commandblocker.bypass
+#  Permission to use /commandblocker reload:  commandblocker.admin
+#
+#  With LuckPerms (on Velocity):
+#    /lp user <player> permission set commandblocker.bypass true
+#    /lp user <player> permission set commandblocker.admin true
+#    /lp group default permission set commandblocker.bypass false
+#
+#  Color codes: use & followed by a code (e.g. &c &a &l &r)
+#  Supported: &0-9 &a-f &k &l &m &n &o &r  (#rrggbb hex NOT supported)
+# ============================================================
+
+settings:
+  # true  -> ONLY commands in allowed-commands work (whitelist mode)
+  # false -> commands in blocked-commands are blocked (blacklist mode)
+  use-whitelist: false
+
+  # Case-insensitive matching for commands
+  case-insensitive: true
+
+  # Send a log message to console when someone is blocked
+  log-blocked: true
+
+messages:
+  # Prefix shown before every message
+  prefix: "&8[&cCommandBlocker&8] &r"
+
+  # Message sent to player when their command is blocked
+  blocked: "&cYou don't have permission to use this command!"
+
+  # /commandblocker reload messages
+  reload-success: "&aConfiguration reloaded successfully!"
+  reload-failed: "&cFailed to reload configuration. Check console."
+  no-permission: "&cYou don't have permission to use this command."
+
+  # Usage message for the plugin command
+  usage: "&eUsage: &f/commandblocker reload"
+
+# Commands blocked for members (do NOT include the leading '/')
+# Only used when use-whitelist: false
+blocked-commands:
+  - op
+  - deop
+  - ban
+  - unban
+  - ban-ip
+  - pardon
+  - kick
+  - gamemode
+  - gm
+  - give
+  - tp
+  - teleport
+  - stop
+  - restart
+  - plugins
+  - pl
+  - version
+  - ver
+  - whitelist
+  - save-all
+  - reload
+  - bukkit:op
+  - minecraft:op
+
+# Commands allowed when use-whitelist: true
+# Only used when use-whitelist: true
+allowed-commands:
+  - spawn
+  - hub
+  - lobby
+  - msg
+  - tell
+  - w
+  - r
+  - reply
+  - help
+  - list
+  - ping
+  - server
