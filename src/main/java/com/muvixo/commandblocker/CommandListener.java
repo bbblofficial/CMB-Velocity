@@ -2,13 +2,10 @@ package com.muvixo.commandblocker;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.command.CommandExecuteEvent;
-import com.velocitypowered.api.event.player.TabCompleteEvent;
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class CommandListener {
@@ -29,9 +26,8 @@ public class CommandListener {
     }
 
     /**
-     * Returns true if the player appears to have permission for this command
-     * from another plugin (essentials, minecraft, bukkit, or a generic
-     * "<plugin>.command.<cmd>" / "<plugin>.<cmd>" pattern).
+     * Returns true if the player already has permission for this command
+     * from another plugin (essentials.*, minecraft.command.*, bukkit.command.*, etc.)
      */
     private boolean hasExternalPermission(Player player, String commandName) {
         if (!config.isRespectOtherPermissions()) return false;
@@ -52,7 +48,6 @@ public class CommandListener {
             "bungeecord.command." + cmd,
             "command." + cmd,
             "commandblocker.command." + cmd,
-            // very common short forms
             cmd,
         };
 
@@ -61,16 +56,9 @@ public class CommandListener {
                 return true;
             }
         }
-
-        // Generic: <anyplugin>.command.<cmd>  - Velocity API doesn't expose
-        // wildcard enumeration, so we check the common server plugins here.
-        // Add more plugin names to config if needed.
         return false;
     }
 
-    // ------------------------------------------------------------
-    // 1) Block execution
-    // ------------------------------------------------------------
     @Subscribe
     public void onCommandExecute(CommandExecuteEvent event) {
         if (!(event.getCommandSource() instanceof Player player)) return;
@@ -89,7 +77,7 @@ public class CommandListener {
         String normalized = config.isCaseInsensitive()
                 ? name.toLowerCase(Locale.ROOT) : name;
 
-        // A) Direct block - but skip if player already has the permission
+        // A) Direct block
         if (config.isBlocked(normalized)) {
             if (hasExternalPermission(player, normalized)) return;
 
@@ -120,7 +108,6 @@ public class CommandListener {
         if (config.isBlockDangerousArgs() && parts.length > 1) {
             String firstArg = parts[1].split(" ", 2)[0];
             if (config.isDangerousArg(firstArg)) {
-                // Give external permission a chance here too, using the base command
                 if (hasExternalPermission(player, normalized)) return;
 
                 event.setResult(CommandExecuteEvent.CommandResult.denied());
@@ -129,49 +116,6 @@ public class CommandListener {
                     logger.info("[Blocked-arg] {} tried /{}", player.getUsername(), raw);
                 }
             }
-        }
-    }
-
-    // ------------------------------------------------------------
-    // 2) Block tab-complete suggestions for blocked commands
-    // ------------------------------------------------------------
-    @Subscribe
-    public void onTabComplete(TabCompleteEvent event) {
-        if (!config.isBlockTabComplete()) return;
-        if (!(event.getPlayer() instanceof Player player)) return;
-        if (player.hasPermission(BYPASS_PERMISSION)) return;
-
-        String partial = event.getPartialMessage();
-        if (partial == null || !partial.startsWith("/")) return;
-
-        List<String> original = event.getSuggestions();
-        if (original.isEmpty()) return;
-
-        List<String> filtered = new ArrayList<>(original.size());
-        for (String suggestion : original) {
-            String clean = suggestion.startsWith("/") ? suggestion.substring(1) : suggestion;
-            String cleanLower = config.isCaseInsensitive()
-                    ? clean.toLowerCase(Locale.ROOT) : clean;
-
-            boolean blocked = config.isBlocked(cleanLower);
-
-            if (!blocked && config.isBlockNamespaced() && cleanLower.contains(":")) {
-                String after = cleanLower.substring(cleanLower.indexOf(':') + 1);
-                blocked = config.isBlocked(after);
-            }
-
-            // Don't filter out if player actually has the permission
-            if (blocked && hasExternalPermission(player, cleanLower)) {
-                blocked = false;
-            }
-
-            if (!blocked) {
-                filtered.add(suggestion);
-            }
-        }
-
-        if (filtered.size() != original.size()) {
-            event.setSuggestions(filtered);
         }
     }
 }
