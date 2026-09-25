@@ -47,13 +47,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>com.velocitypowered</groupId>
-                            <artifactId>velocity-api</artifactId>
-                            <version>3.3.0-SNAPSHOT</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <!-- Disable annotation processing: we provide velocity-plugin.json manually -->
+                    <proc>none</proc>
                 </configuration>
             </plugin>
             <plugin>
