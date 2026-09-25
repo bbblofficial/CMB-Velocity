@@ -30,13 +30,12 @@ public class ReloadCommand implements SimpleCommand {
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
 
-        // /cb creator  ->  visible for everyone
+        // /cb creator -> visible for everyone
         if (args.length >= 1 && args[0].equalsIgnoreCase("creator")) {
             send(source, config.getCreatorMessage());
             return;
         }
 
-        // /cb reload  ->  admin only
         if (!source.hasPermission(ADMIN_PERMISSION)) {
             send(source, config.getNoPermission());
             return;
@@ -59,7 +58,6 @@ public class ReloadCommand implements SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        // /cb creator is available to everyone; /cb reload checks internally
         return true;
     }
 

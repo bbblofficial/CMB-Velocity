@@ -28,19 +28,60 @@ public class CommandListener {
                 .deserialize(config.getPrefix() + message));
     }
 
+    /**
+     * Returns true if the player appears to have permission for this command
+     * from another plugin (essentials, minecraft, bukkit, or a generic
+     * "<plugin>.command.<cmd>" / "<plugin>.<cmd>" pattern).
+     */
+    private boolean hasExternalPermission(Player player, String commandName) {
+        if (!config.isRespectOtherPermissions()) return false;
+
+        String cmd = commandName.toLowerCase(Locale.ROOT);
+        if (cmd.contains(":")) {
+            cmd = cmd.substring(cmd.indexOf(':') + 1);
+        }
+
+        String[] candidates = new String[] {
+            "essentials." + cmd,
+            "essentials.command." + cmd,
+            "minecraft.command." + cmd,
+            "bukkit.command." + cmd,
+            "spigot.command." + cmd,
+            "paper.command." + cmd,
+            "velocity.command." + cmd,
+            "bungeecord.command." + cmd,
+            "command." + cmd,
+            "commandblocker.command." + cmd,
+            // very common short forms
+            cmd,
+        };
+
+        for (String perm : candidates) {
+            if (player.hasPermission(perm)) {
+                return true;
+            }
+        }
+
+        // Generic: <anyplugin>.command.<cmd>  - Velocity API doesn't expose
+        // wildcard enumeration, so we check the common server plugins here.
+        // Add more plugin names to config if needed.
+        return false;
+    }
+
     // ------------------------------------------------------------
     // 1) Block execution
     // ------------------------------------------------------------
     @Subscribe
     public void onCommandExecute(CommandExecuteEvent event) {
         if (!(event.getCommandSource() instanceof Player player)) return;
+
+        // Global bypass
         if (player.hasPermission(BYPASS_PERMISSION)) return;
 
         String raw = event.getCommand();
         if (raw == null) return;
         raw = raw.trim();
         if (raw.isEmpty()) return;
-
         if (raw.startsWith("/")) raw = raw.substring(1);
 
         String[] parts = raw.split(" ", 2);
@@ -48,8 +89,10 @@ public class CommandListener {
         String normalized = config.isCaseInsensitive()
                 ? name.toLowerCase(Locale.ROOT) : name;
 
-        // A) Direct block (includes namespaced commands if listed)
+        // A) Direct block - but skip if player already has the permission
         if (config.isBlocked(normalized)) {
+            if (hasExternalPermission(player, normalized)) return;
+
             event.setResult(CommandExecuteEvent.CommandResult.denied());
             send(player, config.getBlockedMsg());
             if (config.isLogBlocked()) {
@@ -58,10 +101,12 @@ public class CommandListener {
             return;
         }
 
-        // B) Namespaced variant block  e.g. /bukkit:op  /minecraft:give
+        // B) Namespaced block  /bukkit:op  /minecraft:give
         if (config.isBlockNamespaced() && normalized.contains(":")) {
             String afterColon = normalized.substring(normalized.indexOf(':') + 1);
             if (config.isBlocked(afterColon)) {
+                if (hasExternalPermission(player, afterColon)) return;
+
                 event.setResult(CommandExecuteEvent.CommandResult.denied());
                 send(player, config.getBlockedNamespaced());
                 if (config.isLogBlocked()) {
@@ -75,6 +120,9 @@ public class CommandListener {
         if (config.isBlockDangerousArgs() && parts.length > 1) {
             String firstArg = parts[1].split(" ", 2)[0];
             if (config.isDangerousArg(firstArg)) {
+                // Give external permission a chance here too, using the base command
+                if (hasExternalPermission(player, normalized)) return;
+
                 event.setResult(CommandExecuteEvent.CommandResult.denied());
                 send(player, config.getBlockedArgs());
                 if (config.isLogBlocked()) {
@@ -94,14 +142,7 @@ public class CommandListener {
         if (player.hasPermission(BYPASS_PERMISSION)) return;
 
         String partial = event.getPartialMessage();
-        if (partial == null) return;
-
-        // We only filter suggestions starting with '/' (command suggestions)
-        if (!partial.startsWith("/")) return;
-
-        String prefixRaw = partial.substring(1); // strip '/'
-        String prefixLower = config.isCaseInsensitive()
-                ? prefixRaw.toLowerCase(Locale.ROOT) : prefixRaw;
+        if (partial == null || !partial.startsWith("/")) return;
 
         List<String> original = event.getSuggestions();
         if (original.isEmpty()) return;
@@ -112,13 +153,16 @@ public class CommandListener {
             String cleanLower = config.isCaseInsensitive()
                     ? clean.toLowerCase(Locale.ROOT) : clean;
 
-            // Keep the suggestion only if it's NOT blocked
             boolean blocked = config.isBlocked(cleanLower);
 
-            // Namespaced suggestions
             if (!blocked && config.isBlockNamespaced() && cleanLower.contains(":")) {
                 String after = cleanLower.substring(cleanLower.indexOf(':') + 1);
                 blocked = config.isBlocked(after);
+            }
+
+            // Don't filter out if player actually has the permission
+            if (blocked && hasExternalPermission(player, cleanLower)) {
+                blocked = false;
             }
 
             if (!blocked) {

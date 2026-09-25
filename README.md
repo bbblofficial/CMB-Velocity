@@ -7,12 +7,14 @@ Runs on the Velocity proxy only - **no need to install anything on backend serve
 
 ## Features
 
-- ✅ Velocity-only plugin (applies to every server behind the proxy)
-- ✅ Full security blacklist (op, gamemode, give, ban, lp, stop, plugins, ...)
-- ✅ Optional **whitelist mode**
-- ✅ Namespaced command blocking (`/bukkit:op`, `/minecraft:give`, ...)
-- ✅ Dangerous first-argument blocking (`/lp permission set ...`)
-- ✅ **Tab-complete blocking** for hidden commands
+- ✅ Blacklist-only mode (no whitelist, no allowed-commands)
+- ✅ Anything **not** blacklisted is allowed by default
+- ✅ **Smart permission check**: if a player already has permission from
+  another plugin (`essentials.vanish`, `minecraft.command.gamemode`,
+  `bukkit.command.op`, ...), the command is **not** blocked
+- ✅ Namespaced blocking (`/bukkit:op`, `/minecraft:give`)
+- ✅ Dangerous first-argument blocking
+- ✅ Tab-complete blocking
 - ✅ Fully customizable `config.yml` (colors with `&`, prefix, messages)
 - ✅ `/cb creator` and `/cb reload`
 - ✅ Bypass permission for staff
@@ -21,15 +23,15 @@ Runs on the Velocity proxy only - **no need to install anything on backend serve
 ## Default Prefix
 
 ```
-MineStorm » 
+MineStorm »
 ```
-(Aqua + White - can be changed in `config.yml`)
+(Aqua + White - change in `config.yml`)
 
 ## Permissions (LuckPerms on Velocity)
 
 | Permission | Description | Default |
 |---|---|---|
-| `commandblocker.bypass` | Skip blocking | false |
+| `commandblocker.bypass` | Skip all blocking | false |
 | `commandblocker.admin`  | `/cb reload` | op |
 
 ```
@@ -38,35 +40,40 @@ MineStorm »
 /lp group default permission set commandblocker.bypass false
 ```
 
+**Note:** players who already have the command's own permission (from
+Essentials, LuckPerms, etc.) are automatically allowed, e.g. a staff
+member with `essentials.vanish` keeps `/vanish` even though `vanish` is
+in the blacklist.
+
 ## Commands
 
 | Command | Permission | Description |
 |---|---|---|
-| `/cb creator` (aliases `/commandblocker`, `/vcb`, `/cmdblock`) | everyone | Shows plugin author |
-| `/cb reload` | `commandblocker.admin` | Reload `config.yml` |
+| `/cb creator` | everyone | Shows plugin author |
+| `/cb reload`  | `commandblocker.admin` | Reload `config.yml` |
+
+Aliases: `/commandblocker`, `/vcb`, `/cmdblock`.
 
 ## Installation
 
-1. Build locally with `mvn clean package` **or** download from GitHub Actions → Artifacts.
+1. Build with `mvn clean package` **or** download the JAR from GitHub Actions → Artifacts.
 2. Put `VelocityCommandBlocker.jar` in the Velocity `plugins/` folder.
 3. Restart the proxy.
 4. Edit `plugins/velocitycommandblocker/config.yml`.
 5. Reload with `/cb reload`.
 
-## Building with GitHub Actions (no local setup)
+## Building with GitHub Actions
 
-1. Create a new empty repo on GitHub.
-2. Push this project:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/USERNAME/VelocityCommandBlocker.git
-   git push -u origin main
-   ```
-3. Open the **Actions** tab → wait for the green check.
-4. Download the JAR from **Artifacts** on the finished run.
+```bash
+git init
+git add .
+git commit -m "Initial commit by Muvixo"
+git branch -M main
+git remote add origin https://github.com/USERNAME/VelocityCommandBlocker.git
+git push -u origin main
+```
+
+Then open the **Actions** tab → wait for green → download the JAR from **Artifacts**.
 
 ## License
 

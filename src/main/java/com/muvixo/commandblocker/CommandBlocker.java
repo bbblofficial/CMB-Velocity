@@ -40,10 +40,8 @@ public class CommandBlocker {
         this.configManager = new ConfigManager(dataDirectory, logger);
         this.configManager.load();
 
-        // Register command blocking listener
         server.getEventManager().register(this, new CommandListener(configManager, logger));
 
-        // Register /commandblocker (aliases: /cb /vcb /cmdblock)
         CommandManager cm = server.getCommandManager();
         CommandMeta meta = cm.metaBuilder("commandblocker")
                 .aliases("cb", "vcb", "cmdblock")
@@ -55,7 +53,8 @@ public class CommandBlocker {
         logger.info("  VelocityCommandBlocker  -  Created by " + CREATOR);
         logger.info("  Prefix: MineStorm");
         logger.info("  Blocked commands loaded: " + configManager.getBlockedCommands().size());
-        logger.info("  Whitelist mode: " + configManager.isUseWhitelist());
+        logger.info("  Respect other plugin permissions: "
+                + configManager.isRespectOtherPermissions());
         logger.info("=================================================");
     }
 }

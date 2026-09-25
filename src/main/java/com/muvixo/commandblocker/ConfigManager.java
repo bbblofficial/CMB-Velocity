@@ -19,14 +19,14 @@ public class ConfigManager {
     private final Logger logger;
 
     // settings
-    private boolean useWhitelist = false;
     private boolean caseInsensitive = true;
     private boolean logBlocked = true;
     private boolean blockTabComplete = true;
     private boolean blockNamespaced = true;
     private boolean blockDangerousArgs = true;
+    private boolean respectOtherPermissions = true;
 
-    // messages (defaults - overridden by config.yml)
+    // messages
     private String prefix = "&b&lMineStorm &7\u00BB &r";
     private String blockedMsg = "&cYou don't have permission to use this command!";
     private String blockedNamespaced = "&cThat command is not allowed here!";
@@ -39,7 +39,6 @@ public class ConfigManager {
 
     // lists
     private List<String> blockedCommands = new ArrayList<>();
-    private List<String> allowedCommands = new ArrayList<>();
     private List<String> dangerousArgs = new ArrayList<>();
 
     public ConfigManager(Path dataDirectory, Logger logger) {
@@ -73,12 +72,12 @@ public class ConfigManager {
 
                 Object settingsObj = root.get("settings");
                 if (settingsObj instanceof Map<?, ?> settings) {
-                    useWhitelist = getBool(settings, "use-whitelist", false);
                     caseInsensitive = getBool(settings, "case-insensitive", true);
                     logBlocked = getBool(settings, "log-blocked", true);
                     blockTabComplete = getBool(settings, "block-tab-complete", true);
                     blockNamespaced = getBool(settings, "block-namespaced", true);
                     blockDangerousArgs = getBool(settings, "block-dangerous-args", true);
+                    respectOtherPermissions = getBool(settings, "respect-other-permissions", true);
                 }
 
                 Object messagesObj = root.get("messages");
@@ -95,12 +94,10 @@ public class ConfigManager {
                 }
 
                 blockedCommands = toStringList(root.get("blocked-commands"));
-                allowedCommands = toStringList(root.get("allowed-commands"));
                 dangerousArgs = toStringList(root.get("dangerous-args"));
 
-                logger.info("Config loaded: {} blocked, {} allowed, {} dangerous-args (whitelist: {})",
-                        blockedCommands.size(), allowedCommands.size(),
-                        dangerousArgs.size(), useWhitelist);
+                logger.info("Config loaded: {} blocked commands, {} dangerous args",
+                        blockedCommands.size(), dangerousArgs.size());
             }
         } catch (IOException e) {
             logger.error("Failed to load config.yml", e);
@@ -131,20 +128,13 @@ public class ConfigManager {
         return list;
     }
 
-    /** Returns true if the given command name should be blocked. */
+    /** Returns true only if the command is on the blacklist. */
     public boolean isBlocked(String commandName) {
         String cmd = caseInsensitive ? commandName.toLowerCase(Locale.ROOT) : commandName;
-
-        // Strip leading '/' just in case
         if (cmd.startsWith("/")) cmd = cmd.substring(1);
-
-        if (useWhitelist) {
-            return !allowedCommands.contains(cmd);
-        }
         return blockedCommands.contains(cmd);
     }
 
-    /** Returns true if the first argument is dangerous. */
     public boolean isDangerousArg(String arg) {
         if (!blockDangerousArgs) return false;
         String a = caseInsensitive ? arg.toLowerCase(Locale.ROOT) : arg;
@@ -152,12 +142,12 @@ public class ConfigManager {
     }
 
     // Getters
-    public boolean isUseWhitelist() { return useWhitelist; }
     public boolean isCaseInsensitive() { return caseInsensitive; }
     public boolean isLogBlocked() { return logBlocked; }
     public boolean isBlockTabComplete() { return blockTabComplete; }
     public boolean isBlockNamespaced() { return blockNamespaced; }
     public boolean isBlockDangerousArgs() { return blockDangerousArgs; }
+    public boolean isRespectOtherPermissions() { return respectOtherPermissions; }
     public String getPrefix() { return prefix; }
     public String getBlockedMsg() { return blockedMsg; }
     public String getBlockedNamespaced() { return blockedNamespaced; }
@@ -168,6 +158,5 @@ public class ConfigManager {
     public String getNoPermission() { return noPermission; }
     public String getUsage() { return usage; }
     public List<String> getBlockedCommands() { return blockedCommands; }
-    public List<String> getAllowedCommands() { return allowedCommands; }
     public List<String> getDangerousArgs() { return dangerousArgs; }
 }
